@@ -1,16 +1,13 @@
 import Net from 'node:net';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 export class WSService {
-  private _clientNport: Net.Socket;
+  private _clientNPort: Net.Socket;
   private _timeOutData: NodeJS.Timeout;
   constructor(
     public host: string,
     public port: number,
   ) {
-    this._clientNport = new Net.Socket();
+    this._clientNPort = new Net.Socket();
     this._timeOutData = setTimeout(()=>{});
   }
 
@@ -18,11 +15,11 @@ export class WSService {
     try {
       setTimeout(() => {
       }, 1000);      
-      this._clientNport.connect({ host: this.host, port: this.port }, () => {
+      this._clientNPort.connect({ host: this.host, port: this.port }, () => {
 
         console.log('TCP connection ON!');
 
-        this._clientNport.on('end', () => {
+        this._clientNPort.on('end', () => {
           console.log('TCP connection OFF!');
         });
 
@@ -35,7 +32,7 @@ export class WSService {
 
   public sendCommand(command: string): void {
     try {
-      this._clientNport.write(`${command}\r`);
+      this._clientNPort.write(`${command}\r`);
     } catch (err) {
       console.log(err);
     } 
@@ -43,16 +40,16 @@ export class WSService {
 
   public async getData(regex?: RegExp): Promise<RegExpExecArray | string | undefined > {
     return new Promise((resolve, _) => {
-      this._clientNport.removeAllListeners('data');
-      this._clientNport.on('data', data => {
+      this._clientNPort.removeAllListeners('data');
+      this._clientNPort.on('data', data => {
         const dataT = data.toString();
         console.log(dataT);
         if(!regex) {
-          this._clientNport.removeAllListeners('data');
+          this._clientNPort.removeAllListeners('data');
           resolve(<string>dataT);
         } else {
           if(regex.test(dataT)) {
-            this._clientNport.removeAllListeners('data');
+            this._clientNPort.removeAllListeners('data');
             resolve(<RegExpExecArray>regex.exec(dataT));
           }
         }
