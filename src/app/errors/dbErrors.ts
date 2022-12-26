@@ -1,4 +1,5 @@
 export class DbError extends Error {
+  public status: number;
   constructor(err?: string | Error) {
     if(!err) {
       super('Falha no banco de dados!')
@@ -7,5 +8,6 @@ export class DbError extends Error {
     } else {
       super(err);
     }
+    this.status = 400;
   }
 }

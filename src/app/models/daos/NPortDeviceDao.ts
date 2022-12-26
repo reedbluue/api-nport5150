@@ -1,4 +1,5 @@
 import { NPortDeviceEntitie } from "../domains/NPortDeviceEntitie";
+import { NPortDeviceDbError } from "../modelErrors/nPortDeviceErrors";
 import { NPortDeviceInterface } from "../modelsInterfaces/NPortDeviceInterface.js";
 
 export abstract class NPortDeviceDao {
@@ -19,6 +20,8 @@ export abstract class NPortDeviceDao {
 
   public static async update(keys: Object, model: Object, populate?: boolean): Promise<Array<NPortDeviceInterface>> {
     const devices = await NPortDeviceEntitie.find(keys);
+    if(!devices.length)
+      throw new NPortDeviceDbError('Não existe um NPortDevice cadastrado com esse id!');
     for (const device of devices) {
       await device.update(model);
     }
@@ -29,6 +32,8 @@ export abstract class NPortDeviceDao {
 
   public static async delete(keys: Object): Promise<void> {
     const devices = await NPortDeviceEntitie.find(keys);
+    if(!devices.length)
+      throw new NPortDeviceDbError('Não existe um NPortDevice cadastrado com esse id!');
     for (const device of devices) {
       await device.delete();
     }

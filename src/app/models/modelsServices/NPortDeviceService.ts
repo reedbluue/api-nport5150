@@ -1,15 +1,24 @@
 import { Schema } from "mongoose";
 import { NPortDeviceDao } from "../daos/NPortDeviceDao.js";
-import { NPortDeviceError } from "../modelErrors/nPortDeviceErrors.js";
+import { NPortDeviceDbError } from "../modelErrors/nPortDeviceErrors.js";
 import { NPortDeviceInterface } from "../modelsInterfaces/NPortDeviceInterface.js";
 
-export abstract class NPortDevice {
+export abstract class NPortDeviceService {
   public static async addNew(model: NPortDeviceInterface) {
     try {
       const device = await NPortDeviceDao.create(model);
       return device;
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
+    }
+  }
+
+  public static async findAll() {
+    try {
+      const devices = await NPortDeviceDao.read({}, true);
+      return devices;
+    } catch (err) {
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 
@@ -18,7 +27,7 @@ export abstract class NPortDevice {
       const device = await NPortDeviceDao.read({ _id }, true);
       return device[0];
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 
@@ -27,7 +36,7 @@ export abstract class NPortDevice {
       const device = await NPortDeviceDao.read({ desc }, true);
       return device[0];
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 
@@ -36,7 +45,7 @@ export abstract class NPortDevice {
       const device = await NPortDeviceDao.read({ ip }, true);
       return device[0];
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 
@@ -45,7 +54,7 @@ export abstract class NPortDevice {
       const device = await NPortDeviceDao.update({ _id }, model, true);
       return device[0];
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 
@@ -54,7 +63,7 @@ export abstract class NPortDevice {
       await NPortDeviceDao.delete({ _id });
       return;
     } catch (err) {
-      throw new NPortDeviceError(<Error>err);
+      throw new NPortDeviceDbError(<Error>err);
     }
   }
 }

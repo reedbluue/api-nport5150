@@ -6,7 +6,9 @@ const SerialDeviceSchema = new mongoose.Schema<SerialDeviceInterface>({
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    minlength: 3,
+    maxlength: 20
   },
   port: {
     type: Number,

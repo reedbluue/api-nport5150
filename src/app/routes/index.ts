@@ -14,10 +14,13 @@ const routes = (app: Express) => {
   app.use(cors());
   app.use(nPortRoutes);
 
-  app.use((_, __, next) => {
-    const err = new RequestError();
-    next(err);
-  });
+  app.use(((err, _, __, next) => {
+    if(!err) {
+      next(new RequestError());
+    } else {
+      next(err);
+    }
+  }) as ErrorRequestHandler);
 
   app.use(((err, _, res, next) => {
     if(err) {
@@ -25,7 +28,7 @@ const routes = (app: Express) => {
     } else {
       next();
     }
-  }) as ErrorRequestHandler );
+  }) as ErrorRequestHandler);
   
 }
 

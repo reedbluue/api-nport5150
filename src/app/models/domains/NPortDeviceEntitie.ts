@@ -6,7 +6,9 @@ const NPortDeviceSchema = new mongoose.Schema<NPortDeviceInterface>({
     type: String,
     required: true,
     unique: true,
-    lowercase: true
+    lowercase: true,
+    minlength: 3,
+    maxlength: 20
   },
   ip: {
     type: String,

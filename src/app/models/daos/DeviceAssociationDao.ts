@@ -1,4 +1,5 @@
 import { DeviceAssociationEntitie } from "../domains/DeviceAssociationEntitie";
+import { DeviceAssociationDbError } from "../modelErrors/deviceAssociationErrors";
 import { DeviceAssociationInterface } from "../modelsInterfaces/DeviceAssociationInterface.js";
 
 export abstract class DeviceAssociationDao {
@@ -19,6 +20,8 @@ export abstract class DeviceAssociationDao {
 
   public static async update(keys: Object, model: Object, populate?: boolean): Promise<Array<DeviceAssociationInterface>> {
     const devices = await DeviceAssociationEntitie.find(keys);
+    if(!devices.length)
+      throw new DeviceAssociationDbError('Não existe um DeviceAssociation cadastrado com esse id!');
     for (const device of devices) {
       await device.update(model);
     }
@@ -29,6 +32,8 @@ export abstract class DeviceAssociationDao {
 
   public static async delete(keys: Object): Promise<void> {
     const devices = await DeviceAssociationEntitie.find(keys);
+    if(!devices.length)
+    throw new DeviceAssociationDbError('Não existe um DeviceAssociation cadastrado com esse id!');
     for (const device of devices) {
       await device.delete();
     }

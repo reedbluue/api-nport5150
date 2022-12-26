@@ -1,7 +1,7 @@
 export class RequestError extends Error {
   constructor(
     public err?: string | Error,
-    public code: number = 404
+    public status: number = 400
   ) {
     let msg;
     if (!err) {
