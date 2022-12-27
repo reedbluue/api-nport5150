@@ -7,7 +7,7 @@ serialDeviceRoutes.
   get('/serialdevice', SerialDeviceController.retornarTodosSerialDevices).
   get('/serialdevice', SerialDeviceController.retornarSerialDevicePorId).
   get('/serialdevice', SerialDeviceController.retornarSerialDevicePorDesc).
-  post('serialdevice', SerialDeviceController.cadastrarSerialDevice).
+  post('/serialdevice', SerialDeviceController.cadastrarSerialDevice).
   put('/serialdevice', SerialDeviceController.atualizarSerialDevicePorId).
   put('/serialdevice', SerialDeviceController.atualizarSerialDevicePorDesc).
   delete('/serialdevice/:id', SerialDeviceController.deletarSerialDevicePorId);

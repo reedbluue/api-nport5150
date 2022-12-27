@@ -3,33 +3,37 @@ import express from 'express';
 import type { Express, ErrorRequestHandler } from 'express';
 import nPortRoutes from './nPortRoutes.js';
 import cors from 'cors';
+import { serialDeviceRoutes } from './serialDeviceRoutes.js';
+import { nPortDeviceRoutes } from './nPortDeviceRoutes.js';
+import { deviceAssociationRoutes } from './deviceAssiciationRoutes.js';
 
 const routes = (app: Express) => {
-
   app.all('/', (_, res) => {
-    return res.json('@API-Nport5150');
+    return res.json('@API-Nport');
   });
 
   app.use(express.json());
   app.use(cors());
-  app.use(nPortRoutes);
+  app.use(
+    nPortRoutes,
+    serialDeviceRoutes,
+    nPortDeviceRoutes,
+    deviceAssociationRoutes
+  );
 
-  app.use(((err, _, __, next) => {
-    if(!err) {
-      next(new RequestError());
-    } else {
-      next(err);
-    }
-  }) as ErrorRequestHandler);
+  app.use(( _, __, next) => {
+    next(new RequestError());
+  });
 
   app.use(((err, _, res, next) => {
-    if(err) {
-      res.status(err.status || 404).json({error: err.name, message: err.message});
+    if (err) {
+      res
+        .status(err.status || 404)
+        .json({ error: err.name, message: err.message });
     } else {
       next();
     }
   }) as ErrorRequestHandler);
-  
-}
+};
 
 export default routes;

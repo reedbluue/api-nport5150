@@ -1,32 +1,64 @@
-import { Error } from "mongoose";
+import { Error, mongo } from "mongoose";
 
 export class DeviceAssociationDbError extends Error {
+  public name: string;
   public status: number;
-  constructor(err?: string | Error) {
+  constructor(err?: string | Error, status?: number) {
+    let actStatus = status || 400;
     if(!err) {
       super('Falha na operação com o DeviceAssociation no banco de dados!');
-      this.status = 400;
     } else if(err instanceof Error.ValidationError) {
-      switch (err.errors[0].kind) {
+      const keyError = err.errors[Object.keys(err.errors)[0]];
+      switch (keyError.kind) {
         case'required':
-          super(`O campo '${err.errors[0].path}' não pode ser vazio!`);
+          super(`O campo '${keyError.path}' não pode ser vazio!`);
           this.status = 406;
         break;
         case'unique':
-          super(`Já existe um DeviceAssociation com esse '${err.errors[0].path}'!`);
+          super(`Já existe um DeviceAssociation com esse '${keyError.path}'!`);
           this.status = 409;
         break;
         default:
           super(err.message);
-          this.status = 400;
+        break;
+      }
+    } else if(err instanceof mongo.MongoServerError) {
+      switch(err.code) {
+        case 11000:
+          super(`Já existe um SerialDevice com os campos "${Object.keys(err.keyValue).join(', ')}" da sua solicitação!`);
+          this.status = 409;
+        break;
+        default:
+          super(err.message);
         break;
       }
     } else if(err instanceof Error) {
       super(err.message);
-      this.status = 400;
+      let error = <Error & { status: number }>err;
+      if(error.status)
+        actStatus = error.status;
     } else {
       super(err);
-      this.status = 400;
     }
+    this.name = 'DeviceAssociationDbError';
+    this.status = actStatus;
+  }
+}
+
+export class DeviceAssociationRequestError extends Error {
+  public status: number;
+  constructor(err?: string | Error, status?: number) {
+    let actStatus = status || 400;
+    if(!err) {
+      super('Falha na requisição para o SerialDevice!')
+    } else if(err instanceof Error) {
+      super(err.message);
+      let error = <Error & { status: number }>err;
+      if(error.status)
+        actStatus = error.status;
+    } else {
+      super(err);
+    }
+    this.status = actStatus;
   }
 }

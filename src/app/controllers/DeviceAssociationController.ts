@@ -3,51 +3,81 @@ import { DeviceAssociationInterface } from "../models/modelsInterfaces/DeviceAss
 import { DeviceAssociationService } from '../models/modelsServices/DeviceAssociationService.js';
 
 export abstract class DeviceAssociationController {
-  public static async cadastrarDeviceAssociation(req: Request<DeviceAssociationInterface>, res: Response) {
-    const deviceAssociation = await DeviceAssociationService.addNew(req.body);
-    res.status(200).json({ message: 'DeviceAssociation cadastrado com sucesso!', deviceAssociation: deviceAssociation });
+  public static async cadastrarDeviceAssociation(req: Request<DeviceAssociationInterface>, res: Response, next: NextFunction) {
+    try {
+      const deviceAssociation = await DeviceAssociationService.addNew(req.body);
+      res.status(200).json({ message: 'DeviceAssociation cadastrado com sucesso!', deviceAssociation: deviceAssociation });
+    } catch (err) {
+      next(err);
+    }
   }
 
-  public static async retornarTodosDeviceAssociations(req: Request, res: Response, next: NextFunction) {
-    if(req.query)
-      return next();
+  public static async retornarTodosDeviceAssociations(_req: Request, res: Response, next: NextFunction) {
+    try {
     const deviceAssociations = await DeviceAssociationService.findAll();
     res.status(200).json(deviceAssociations);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarDeviceAssociationPorId(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.query;
-    if(!id)
-      return next();
-    const deviceAssociation = await DeviceAssociationService.findById(<string>id);
-    res.status(200).json(deviceAssociation);
+    try {
+      const { id } = req.params;
+      const deviceAssociation = await DeviceAssociationService.findById(<string>id);
+      res.status(200).json(deviceAssociation);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarDeviceAssociationPorNPortDeviceId(req: Request, res: Response, next: NextFunction) {
-    const { nportdeviceid } = req.query;
-    if(!nportdeviceid)
-      return next();
-    const deviceAssociation = await DeviceAssociationService.findAllByNPortDeviceId(<string>nportdeviceid);
-    res.status(200).json(deviceAssociation);
+    try {
+      const { id } = req.params;
+      const deviceAssociation = await DeviceAssociationService.findAllByNPortDeviceId(<string>id);
+      res.status(200).json(deviceAssociation);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarDeviceAssociationPorSerialDeviceId(req: Request, res: Response, next: NextFunction) {
-    const { serialdeviceid } = req.query;
-    if(!serialdeviceid)
-      return next();
-    const deviceAssociation = await DeviceAssociationService.findAllBySerialDeviceId(<string>serialdeviceid);
-    res.status(200).json(deviceAssociation);
+    try {
+      const { id } = req.params;
+      const deviceAssociation = await DeviceAssociationService.findAllBySerialDeviceId(<string>id);
+      res.status(200).json(deviceAssociation);
+    } catch (err) {
+      next(err);
+    }
   }
 
-  public static async deletarDeviceAssociationPorSerialDeviceId(req: Request, res: Response) {
-    const { id } = req.params;
-    await DeviceAssociationService.deleteBySerialDeviceId(id);
-    res.status(200).json();
+  public static async deletarDeviceAssociationPorId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await DeviceAssociationService.deleteById(id);
+      res.status(200).json();
+    } catch (err) {
+      next(err);
+    }
   }
 
-  public static async deletarDeviceAssociationPorNPortDeviceId(req: Request, res: Response) {
-    const { id } = req.params;
-    await DeviceAssociationService.deleteAllByNPortDeviceId(id);
-    res.status(200).json();
+  public static async deletarTodosDeviceAssociationPorSerialDeviceId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await DeviceAssociationService.deleteBySerialDeviceId(id);
+      res.status(200).json();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public static async deletarTodosDeviceAssociationPorNPortDeviceId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await DeviceAssociationService.deleteAllByNPortDeviceId(id);
+      res.status(200).json();
+    } catch (err) {
+      next(err);
+    }
   }
 }

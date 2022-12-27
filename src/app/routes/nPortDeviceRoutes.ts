@@ -7,7 +7,7 @@ nPortDeviceRoutes.
   get('/nportdevice', NPortDeviceController.retornarTodosNPortDevices).
   get('/nportdevice', NPortDeviceController.retornarNPortDevicePorId).
   get('/nportdevice', NPortDeviceController.retornarNPortDevicePorDesc).
-  post('nportdevice', NPortDeviceController.cadastrarNPortDevice).
+  post('/nportdevice', NPortDeviceController.cadastrarNPortDevice).
   put('/nportdevice', NPortDeviceController.atualizarNPortDevicePorId).
   put('/nportdevice', NPortDeviceController.atualizarNPortDevicePorDesc).
   delete('/nportdevice/:id', NPortDeviceController.deletarNPortDevicePorId);

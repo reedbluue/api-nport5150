@@ -8,7 +8,7 @@ export class NportService {
     
   ) {
     this._clientNPort = new WSService(this.host, this.port);
-    this._clientNPort.start();
+    //this._clientNPort.start(); TODO: REMOVER
   }
 
   public async readWeight(): Promise<string | undefined> {

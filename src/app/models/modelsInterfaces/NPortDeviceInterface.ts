@@ -5,6 +5,6 @@ export interface NPortDeviceInterface {
   _id?: Schema.Types.ObjectId | string;
   desc: string;
   ip: string;
-  amountDevices: number;
+  maxDevices: number;
   serialDevices?: Array<SerialDeviceInterface>;
 }

@@ -3,55 +3,83 @@ import { NPortDeviceInterface } from "../models/modelsInterfaces/NPortDeviceInte
 import { NPortDeviceService } from '../models/modelsServices/NPortDeviceService.js';
 
 export abstract class NPortDeviceController {
-  public static async cadastrarNPortDevice(req: Request<NPortDeviceInterface>, res: Response) {
-    const nPortDevice = await NPortDeviceService.addNew(req.body);
-    res.status(200).json({ message: 'NPortDevice cadastrado com sucesso!', nPortDevice: nPortDevice });
+  public static async cadastrarNPortDevice(req: Request<NPortDeviceInterface>, res: Response, next: NextFunction) {
+    try {
+      const nPortDevice = await NPortDeviceService.addNew(req.body);
+      res.status(200).json(nPortDevice );
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarTodosNPortDevices(req: Request, res: Response, next: NextFunction) {
-    if(req.query)
+    try {
+    if(Object.values(req.query).length)
       return next();
     const nPortDevices = await NPortDeviceService.findAll();
     res.status(200).json(nPortDevices);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.query;
-    if(!id)
-      return next();
-    const nPortDevice = await NPortDeviceService.findById(<string>id);
-    res.status(200).json(nPortDevice);
+    try {
+      const { id } = req.query;
+      if(!id)
+        return next();
+      const nPortDevice = await NPortDeviceService.findById(<string>id);
+      res.status(200).json(nPortDevice);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async retornarNPortDevicePorDesc(req: Request, res: Response, next: NextFunction) {
-    const { desc } = req.query;
-    if(!desc)
-      return next();
-    const nPortDevice = await NPortDeviceService.findByDesc(<string>desc);
-    res.status(200).json(nPortDevice);
+    try {
+      const { desc } = req.query;
+      if(!desc)
+        return next();
+      const nPortDevice = await NPortDeviceService.findByDesc(<string>desc);
+      res.status(200).json(nPortDevice);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async atualizarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
-    const { id } = req.query;
-    if(!id)
-      return next();
-    const model = req.body;
-    const nPortDevices = await NPortDeviceService.updateById(<string>id, model);
-    res.status(200).json(nPortDevices);
+    try {
+      const { id } = req.query;
+      if(!id)
+        return next();
+      const model = req.body;
+      const nPortDevices = await NPortDeviceService.updateById(<string>id, model);
+      res.status(200).json(nPortDevices);
+    } catch (err) {
+      next(err);
+    }
   }
 
   public static async atualizarNPortDevicePorDesc(req: Request, res: Response, next: NextFunction) {
-    const { desc } = req.query;
-    if(!desc)
-      return next();
-    const model = req.body;
-    const nPortDevices = await NPortDeviceService.updateById(<string>desc, model);
-    res.status(200).json(nPortDevices);
+    try {
+      const { desc } = req.query;
+      if(!desc)
+        return next();
+      const model = req.body;
+      const nPortDevices = await NPortDeviceService.updateByDesc(<string>desc, model);
+      res.status(200).json(nPortDevices);
+    } catch (err) {
+      next(err);
+    }
   }
 
-  public static async deletarNPortDevicePorId(req: Request, res: Response) {
-    const { id } = req.params;
-    await NPortDeviceService.deleteById(id);
-    res.status(200).json();
+  public static async deletarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await NPortDeviceService.deleteById(id);
+      res.status(200).json();
+    } catch (err) {
+      next(err);
+    }
   }
 }

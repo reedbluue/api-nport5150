@@ -19,7 +19,7 @@ export const startDbConnection = async (): Promise<void> => {
     
     const timeOut = setTimeout(() => {
       throw new DbError(chalk.red('Tempo expirado para a conexão com o banco de dados!'));
-    }, 10000);
+    }, 15000);
 
     try {
       console.log('Iniciando conexão com o banco de dados!');
