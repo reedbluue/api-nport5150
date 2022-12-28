@@ -1,10 +1,10 @@
 import { NPortDeviceEntitie } from "../domains/NPortDeviceEntitie.js";
-import { NPortDeviceDbError } from "../modelErrors/nPortDeviceErrors.js";
 import { NPortDeviceInterface } from "../modelsInterfaces/NPortDeviceInterface.js";
 
 export abstract class NPortDeviceDao {
-  public static async read(keys: Object): Promise<Array<NPortDeviceInterface>> {
+  public static async read(keys: Object = {}): Promise<Array<NPortDeviceInterface> | null> {
     const devices = await NPortDeviceEntitie.find(keys);
+    if(!devices.length) return null;
     return devices
   }
 
@@ -13,26 +13,14 @@ export abstract class NPortDeviceDao {
     return device;
   }
 
-  public static async update(keys: Object, model: Object): Promise<Array<NPortDeviceInterface>> {
-    const devices = await NPortDeviceEntitie.find(keys);
-    if(!devices.length)
-      throw new NPortDeviceDbError('Não existe um NPortDevice cadastrado com esses campos!');
-    const modifiedDevices: Array<NPortDeviceInterface> = []
-    for (const device of devices) {
-      await device.updateOne(model);
-      const modified = await NPortDeviceEntitie.findById(device.id);
-      modifiedDevices.push(<NPortDeviceInterface>modified);
-    }
-    return modifiedDevices;
+  public static async update(keys: Object, model: Object): Promise<Array<NPortDeviceInterface> | null> {
+    const resUpdate = await NPortDeviceEntitie.updateMany(keys, model, { runValidators: true });
+    if(!resUpdate.matchedCount) return null;
+    return await NPortDeviceEntitie.find({...keys, ...model});
   }
 
-  public static async delete(keys: Object): Promise<void> {
-    const devices = await NPortDeviceEntitie.find(keys);
-    if(!devices.length)
-      throw new NPortDeviceDbError('Não existe um NPortDevice cadastrado com esse id!');
-    for (const device of devices) {
-      await device.delete();
-    }
-    return;
+  public static async delete(keys: Object): Promise<number> {
+    const resDelete = await NPortDeviceEntitie.deleteMany(keys);
+    return resDelete.deletedCount;
   }
 }

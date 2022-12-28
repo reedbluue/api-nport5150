@@ -3,83 +3,90 @@ import { NPortDeviceInterface } from "../models/modelsInterfaces/NPortDeviceInte
 import { NPortDeviceService } from '../models/modelsServices/NPortDeviceService.js';
 
 export abstract class NPortDeviceController {
-  public static async cadastrarNPortDevice(req: Request<NPortDeviceInterface>, res: Response, next: NextFunction) {
+  public static async cadastrarNPortDevice(req: Request, res: Response, next: NextFunction) {
     try {
-      const nPortDevice = await NPortDeviceService.addNew(req.body);
-      res.status(200).json(nPortDevice );
-    } catch (err) {
-      next(err);
+      const model: NPortDeviceInterface = req.body;
+      const nPortDevice = await NPortDeviceService.addNew(model);
+      res.status(201).json(nPortDevice);
+    } catch (err){
+      return next(err);
     }
   }
 
-  public static async retornarTodosNPortDevices(req: Request, res: Response, next: NextFunction) {
+  public static async retornarTodosNPortDevices(_req: Request, res: Response, next: NextFunction) {
     try {
-    if(Object.values(req.query).length)
-      return next();
-    const nPortDevices = await NPortDeviceService.findAll();
-    res.status(200).json(nPortDevices);
+      const nPortDevices = await NPortDeviceService.findAll();
+      if(nPortDevices)
+        return res.status(200).json(nPortDevices);
+      return res.status(404).json({message: "Não existem NPortDevices cadastrados!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async retornarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.query;
-      if(!id)
-        return next();
+      const { id } = req.params;
       const nPortDevice = await NPortDeviceService.findById(<string>id);
-      res.status(200).json(nPortDevice);
+      if(nPortDevice)
+        return res.status(200).json(nPortDevice);
+      return res.status(404).json({message: "Não existe um NPortDevices cadastrado com esse ID!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async retornarNPortDevicePorDesc(req: Request, res: Response, next: NextFunction) {
     try {
-      const { desc } = req.query;
-      if(!desc)
-        return next();
+      const { desc } = req.params;
       const nPortDevice = await NPortDeviceService.findByDesc(<string>desc);
-      res.status(200).json(nPortDevice);
+      if(nPortDevice)
+        return res.status(200).json(nPortDevice);
+      return res.status(404).json({message: "Não existe um NPortDevice cadastrado com essa descrição!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async atualizarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.query;
-      if(!id)
-        return next();
+      const { id } = req.params;
       const model = req.body;
+      if(!Object.keys(model).length)
+        return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
       const nPortDevices = await NPortDeviceService.updateById(<string>id, model);
-      res.status(200).json(nPortDevices);
+      if(nPortDevices)
+        return res.status(200).json(nPortDevices);
+      return res.status(404).json({message: "Não existe um NPortDevices cadastrado com esse id, portanto, não foi possível atualizar!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async atualizarNPortDevicePorDesc(req: Request, res: Response, next: NextFunction) {
     try {
-      const { desc } = req.query;
-      if(!desc)
-        return next();
+      const { desc } = req.params;
       const model = req.body;
+      if(!Object.keys(model).length)
+        return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
       const nPortDevices = await NPortDeviceService.updateByDesc(<string>desc, model);
-      res.status(200).json(nPortDevices);
-    } catch (err) {
-      next(err);
+      if(nPortDevices)
+        return res.status(200).json(nPortDevices);
+      return res.status(404).json({message: "Não existe um NPortDevice cadastrado com essa descrição, portanto, não foi possível atualizar!"}); 
+      } catch (err) {
+      return next(err);
     }
   }
 
   public static async deletarNPortDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      await NPortDeviceService.deleteById(id);
-      res.status(200).json();
+      const resDelete = await NPortDeviceService.deleteById(id);
+      if(resDelete)
+        return res.status(204).json();
+      return res.status(404).json({message: "Não existe um NPortDevice cadastrado com esse id, portanto, não foi possível deletar!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 }

@@ -7,80 +7,86 @@ export abstract class SerialDeviceController {
     try {
       const model: SerialDeviceInterface = req.body;
       const serialDevice = await SerialDeviceService.addNew(model);
-      res.status(200).json(serialDevice);
+      res.status(201).json(serialDevice);
     } catch (err){
-      next(err);
+      return next(err);
     }
   }
 
-  public static async retornarTodosSerialDevices(req: Request, res: Response, next: NextFunction) {
+  public static async retornarTodosSerialDevices(_req: Request, res: Response, next: NextFunction) {
     try {
-      if(Object.values(req.query).length)
-        return next();
       const serialDevices = await SerialDeviceService.findAll();
-    res.status(200).json(serialDevices);
+      if(serialDevices)
+        return res.status(200).json(serialDevices);
+      return res.status(404).json({message: "Não existem SerialDevices cadastrados!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async retornarSerialDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.query;
-      if(!id)
-        return next();
+      const { id } = req.params;
       const serialDevice = await SerialDeviceService.findById(<string>id);
-      res.status(200).json(serialDevice);
+      if(serialDevice)
+        return res.status(200).json(serialDevice);
+      return res.status(404).json({message: "Não existe um SerialDevices cadastrado com esse ID!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async retornarSerialDevicePorDesc(req: Request, res: Response, next: NextFunction) {
     try {
-      const { desc } = req.query;
-      if(!desc)
-        return next();
+      const { desc } = req.params;
       const serialDevice = await SerialDeviceService.findByDesc(<string>desc);
-      res.status(200).json(serialDevice);
+      if(serialDevice)
+        return res.status(200).json(serialDevice);
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrado com essa descrição!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async atualizarSerialDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.query;
-      if(!id)
-        return next();
+      const { id } = req.params;
       const model = req.body;
+      if(!Object.keys(model).length)
+        return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
       const serialDevices = await SerialDeviceService.updateById(<string>id, model);
-      res.status(200).json(serialDevices);
+      if(serialDevices)
+        return res.status(200).json(serialDevices);
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   public static async atualizarSerialDevicePorDesc(req: Request, res: Response, next: NextFunction) {
     try {
-      const { desc } = req.query;
-      if(!desc)
-        return next();
+      const { desc } = req.params;
       const model = req.body;
+      if(!Object.keys(model).length)
+        return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
       const serialDevices = await SerialDeviceService.updateByDesc(<string>desc, model);
-      res.status(200).json(serialDevices);
-    } catch (err) {
-      next(err);
+      if(serialDevices)
+        return res.status(200).json(serialDevices);
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrados com essa descrição, portanto, não foi possível atualizar!"}); 
+      } catch (err) {
+      return next(err);
     }
   }
 
   public static async deletarSerialDevicePorId(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      await SerialDeviceService.deleteById(id);
-      res.status(200).json();
+      const resDelete = await SerialDeviceService.deleteById(id);
+      if(resDelete)
+        return res.status(204).json();
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrados com esse id, portanto, não foi possível deletar!"}); 
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 }

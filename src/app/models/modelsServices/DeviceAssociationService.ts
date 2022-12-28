@@ -1,30 +1,18 @@
 import { Schema } from 'mongoose';
-import { objectIdTest } from '../../helpers/objectIdTest.js';
 import { DeviceAssociationDao } from '../daos/DeviceAssociationDao.js';
-import {
-  DeviceAssociationDbError,
-  DeviceAssociationRequestError,
-} from '../modelErrors/deviceAssociationErrors.js';
+import { DeviceAssociationDbError } from '../modelErrors/deviceAssociationErrors.js';
 import { DeviceAssociationInterface } from '../modelsInterfaces/DeviceAssociationInterface.js';
+import { NPortDeviceInterface } from '../modelsInterfaces/NPortDeviceInterface.js';
 import { NPortDeviceService } from './NPortDeviceService.js';
 import { SerialDeviceService } from './SerialDeviceService.js';
 
 export abstract class DeviceAssociationService {
   public static async addNew(model: DeviceAssociationInterface) {
     try {
-      if (model.nPortDevice && !objectIdTest(<string>model.nPortDevice))
-        throw new DeviceAssociationDbError(
-          'Formato inválido do nPortDeviceId!'
-        );
-      if (model.serialDevice && !objectIdTest(<string>model.serialDevice))
-        throw new DeviceAssociationDbError(
-          'Formato inválido do serialDeviceId!'
-        );
       await DeviceAssociationService._throwIfNotValidToCreate(
         <string>model.nPortDevice,
         <string>model.serialDevice
       );
-
       const association = await DeviceAssociationDao.create(model);
       return association;
     } catch (err) {
@@ -43,11 +31,8 @@ export abstract class DeviceAssociationService {
 
   public static async findById(_id: Schema.Types.ObjectId | string) {
     try {
-      if (typeof _id == typeof '' && !objectIdTest(<string>_id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
       const association = await DeviceAssociationDao.read({ _id }, true);
-      if (!association.length)
-        throw new DeviceAssociationDbError('Associação não encontrada!');
+      if (!association) return null;
       return association[0];
     } catch (err) {
       throw new DeviceAssociationDbError(<Error>err);
@@ -58,11 +43,12 @@ export abstract class DeviceAssociationService {
     id: Schema.Types.ObjectId | string
   ) {
     try {
-      if (typeof id == typeof '' && !objectIdTest(<string>id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
       const nPortDevice = await NPortDeviceService.findById(id);
-      if(!nPortDevice)
-        throw new DeviceAssociationRequestError('Não existe um NPortDevice cadastrado com esse ID!');
+      if (!nPortDevice)
+        throw new DeviceAssociationDbError(
+          'Não existe um NPortDevice cadastrado com esse ID!',
+          404
+        );
       const associations = await DeviceAssociationDao.read(
         { nPortDevice: id },
         true
@@ -77,11 +63,12 @@ export abstract class DeviceAssociationService {
     id: Schema.Types.ObjectId | string
   ) {
     try {
-      if (typeof id == typeof '' && !objectIdTest(<string>id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
       const serialDevice = await SerialDeviceService.findById(id);
-      if(!serialDevice)
-        throw new DeviceAssociationRequestError('Não existe um SerialDevice cadastrado com esse ID!');
+      if (!serialDevice)
+        throw new DeviceAssociationDbError(
+          'Não existe um SerialDevice cadastrado com esse ID!',
+          404
+        );
       const associations = await DeviceAssociationDao.read(
         { serialDevice: id },
         true
@@ -92,14 +79,10 @@ export abstract class DeviceAssociationService {
     }
   }
 
-  public static async deleteById(
-    id: Schema.Types.ObjectId | string
-  ) {
+  public static async deleteById(_id: Schema.Types.ObjectId | string) {
     try {
-      if (typeof id == typeof '' && !objectIdTest(<string>id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
-      await DeviceAssociationDao.delete({ _id: id });
-      return;
+      const resDelete = await DeviceAssociationDao.delete({ _id });
+      return resDelete;
     } catch (err) {
       throw new DeviceAssociationDbError(<Error>err);
     }
@@ -109,11 +92,16 @@ export abstract class DeviceAssociationService {
     id: Schema.Types.ObjectId | string
   ) {
     try {
-      if (typeof id == typeof '' && !objectIdTest(<string>id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
       const nPortDevice = await NPortDeviceService.findById(id);
-      await DeviceAssociationDao.delete({ nPortDevice: nPortDevice._id });
-      return;
+      if (!nPortDevice)
+        throw new DeviceAssociationDbError(
+          'Não existe um NPortDevice cadastrado com esse ID!',
+          404
+        );
+      const resDelete = await DeviceAssociationDao.delete({
+        nPortDevice: nPortDevice._id,
+      });
+      return resDelete;
     } catch (err) {
       throw new DeviceAssociationDbError(<Error>err);
     }
@@ -123,10 +111,16 @@ export abstract class DeviceAssociationService {
     id: Schema.Types.ObjectId | string
   ) {
     try {
-      if (typeof id == typeof '' && !objectIdTest(<string>id))
-        throw new DeviceAssociationDbError('Formato inválido do ID!');
-      await DeviceAssociationDao.delete({ serialDevice: id });
-      return;
+      const serialDevice = await SerialDeviceService.findById(id);
+      if (!serialDevice)
+        throw new DeviceAssociationDbError(
+          'Não existe um SerialDevice cadastrado com esse ID!',
+          404
+        );
+      const resDelete = await DeviceAssociationDao.delete({
+        serialDevice: serialDevice._id,
+      });
+      return resDelete;
     } catch (err) {
       throw new DeviceAssociationDbError(<Error>err);
     }
@@ -137,7 +131,17 @@ export abstract class DeviceAssociationService {
     serialDeviceId: string
   ): Promise<void> {
     const nPortDevice = await NPortDeviceService.findById(nPortDeviceId);
+    if (!nPortDevice)
+      throw new DeviceAssociationDbError(
+        'Não existe um NPortDevice cadastrado com esse ID!',
+        404
+      );
     const serialDevice = await SerialDeviceService.findById(serialDeviceId);
+    if (!serialDevice)
+      throw new DeviceAssociationDbError(
+        'Não existe um SerialDevice cadastrado com esse ID!',
+        404
+      );
 
     const serialDeviceAssociation =
       await DeviceAssociationService.findAllBySerialDeviceId(
@@ -149,18 +153,25 @@ export abstract class DeviceAssociationService {
         <Schema.Types.ObjectId | string>nPortDevice._id
       );
 
-    if (serialDeviceAssociation.length)
-      throw new DeviceAssociationRequestError(
-        `O SerialDevice "${
-          serialDevice.desc
-        }" já está associado ao NPortDevice "${(await NPortDeviceService.findById(
+    if (serialDeviceAssociation) {
+      const association = <NPortDeviceInterface>(
+        await NPortDeviceService.findById(
           <Schema.Types.ObjectId | string>serialDeviceAssociation[0].nPortDevice
-        )).desc}"`
+        )
       );
+      throw new DeviceAssociationDbError(
+        `O SerialDevice "${serialDevice.desc}" já está associado ao NPortDevice "${association.desc}"`,
+        409
+      );
+    }
 
-    if (nPortAssociation.length >= nPortDevice.maxDevices)
-      throw new DeviceAssociationRequestError(
-        `O NPortDevice "${nPortDevice.desc}" já chegou ao seu limite de ${nPortDevice.maxDevices} SerialDevices associados!`
+    if (
+      (nPortAssociation && nPortAssociation.length >= nPortDevice.maxDevices) ||
+      (!nPortAssociation && nPortDevice.maxDevices == 0)
+    )
+      throw new DeviceAssociationDbError(
+        `O NPortDevice "${nPortDevice.desc}" já chegou ao seu limite de ${nPortDevice.maxDevices} SerialDevices associados!`,
+        406
       );
     return;
   }

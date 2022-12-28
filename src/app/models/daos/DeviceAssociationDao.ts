@@ -1,42 +1,33 @@
 import { DeviceAssociationEntitie } from "../domains/DeviceAssociationEntitie.js";
-import { DeviceAssociationDbError } from "../modelErrors/deviceAssociationErrors.js";
 import { DeviceAssociationInterface } from "../modelsInterfaces/DeviceAssociationInterface.js";
 
 export abstract class DeviceAssociationDao {
-  public static async read(keys: Object, populate?: boolean): Promise<Array<DeviceAssociationInterface>> {
-    let devices;
-    if(!populate) {
-      devices = await DeviceAssociationEntitie.find(keys);
+  public static async read(keys: Object = {}, populate?: boolean): Promise<Array<DeviceAssociationInterface> | null> {
+    let association;
+    if(populate) {
+      association = await DeviceAssociationEntitie.find(keys, {}, {populate: ['nPortDevice', 'serialDevice']});
     } else {
-      devices = await DeviceAssociationEntitie.find(keys, {}, {populate: ['nPortDevice', 'serialDevice']});
+      association = await DeviceAssociationEntitie.find(keys);
     }
-    return devices;
+    if(!association.length) return null;
+    return association;
   }
 
   public static async create(model: DeviceAssociationInterface): Promise<DeviceAssociationInterface> {
-    const device = await DeviceAssociationEntitie.create(model);
-    return device;
+    const association = await DeviceAssociationEntitie.create(model);
+    return association;
   }
 
-  public static async update(keys: Object, model: Object, populate?: boolean): Promise<Array<DeviceAssociationInterface>> {
-    const devices = await DeviceAssociationEntitie.find(keys);
-    if(!devices.length)
-      throw new DeviceAssociationDbError('Não existe um DeviceAssociation cadastrado com esses campos!');
-    for (const device of devices) {
-      await device.update(model);
-    }
+  public static async update(keys: Object, model: Object, populate?: boolean): Promise<Array<DeviceAssociationInterface> | null> {
+    const resUpdate = await DeviceAssociationEntitie.updateMany(keys, model, {runValidators: true});
+    if(!resUpdate.matchedCount) return null;
     if(populate)
-      return await DeviceAssociationEntitie.find(keys, {}, {populate: ['nPortDevice', 'serialDevice']});
-    return await DeviceAssociationEntitie.find(keys);
+      return await DeviceAssociationEntitie.find({...keys, ...model}, {}, {populate: ['nPortDevice', 'serialDevice']});
+    return await DeviceAssociationEntitie.find({...keys, ...model});
   }
 
-  public static async delete(keys: Object): Promise<void> {
-    const devices = await DeviceAssociationEntitie.find(keys);
-    if(!devices.length)
-    throw new DeviceAssociationDbError('Não existe um DeviceAssociation cadastrado com esse id!');
-    for (const device of devices) {
-      await device.delete();
-    }
-    return;
+  public static async delete(keys: Object): Promise<number> {
+    const resDelete = await DeviceAssociationEntitie.deleteMany(keys);
+    return resDelete.deletedCount;
   }
 }

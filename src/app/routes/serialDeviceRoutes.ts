@@ -5,9 +5,9 @@ export const serialDeviceRoutes = express.Router();
 
 serialDeviceRoutes.
   get('/serialdevice', SerialDeviceController.retornarTodosSerialDevices).
-  get('/serialdevice', SerialDeviceController.retornarSerialDevicePorId).
-  get('/serialdevice', SerialDeviceController.retornarSerialDevicePorDesc).
+  get('/serialdevice/id/:id', SerialDeviceController.retornarSerialDevicePorId).
+  get('/serialdevice/desc/:desc', SerialDeviceController.retornarSerialDevicePorDesc).
   post('/serialdevice', SerialDeviceController.cadastrarSerialDevice).
-  put('/serialdevice', SerialDeviceController.atualizarSerialDevicePorId).
-  put('/serialdevice', SerialDeviceController.atualizarSerialDevicePorDesc).
+  put('/serialdevice/id/:id', SerialDeviceController.atualizarSerialDevicePorId).
+  put('/serialdevice/desc/:desc', SerialDeviceController.atualizarSerialDevicePorDesc).
   delete('/serialdevice/:id', SerialDeviceController.deletarSerialDevicePorId);

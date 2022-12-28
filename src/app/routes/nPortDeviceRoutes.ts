@@ -5,9 +5,9 @@ export const nPortDeviceRoutes = express.Router();
 
 nPortDeviceRoutes.
   get('/nportdevice', NPortDeviceController.retornarTodosNPortDevices).
-  get('/nportdevice', NPortDeviceController.retornarNPortDevicePorId).
-  get('/nportdevice', NPortDeviceController.retornarNPortDevicePorDesc).
+  get('/nportdevice/id/:id', NPortDeviceController.retornarNPortDevicePorId).
+  get('/nportdevice/desc/:desc', NPortDeviceController.retornarNPortDevicePorDesc).
   post('/nportdevice', NPortDeviceController.cadastrarNPortDevice).
-  put('/nportdevice', NPortDeviceController.atualizarNPortDevicePorId).
-  put('/nportdevice', NPortDeviceController.atualizarNPortDevicePorDesc).
+  put('/nportdevice/id/:id', NPortDeviceController.atualizarNPortDevicePorId).
+  put('/nportdevice/desc/:desc', NPortDeviceController.atualizarNPortDevicePorDesc).
   delete('/nportdevice/:id', NPortDeviceController.deletarNPortDevicePorId);

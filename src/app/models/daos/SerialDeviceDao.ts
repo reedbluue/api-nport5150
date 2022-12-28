@@ -2,8 +2,9 @@ import { SerialDeviceEntitie } from "../domains/SerialDeviceEntitie.js";
 import { SerialDeviceInterface } from "../modelsInterfaces/SerialDeviceInterface.js";
 
 export abstract class SerialDeviceDao {
-  public static async read(keys: Object): Promise<Array<SerialDeviceInterface>> {
-    const devices = await SerialDeviceEntitie.find(keys);
+  public static async read(keys: Object = {}): Promise<Array<SerialDeviceInterface> | null> {
+    const devices = await SerialDeviceEntitie.find(keys, {}, {runValidators: true, });
+    if(!devices.length) return null;
     return devices;
   }
 
@@ -13,7 +14,7 @@ export abstract class SerialDeviceDao {
   }
 
   public static async update(keys: Object, model: Object): Promise<Array<SerialDeviceInterface> | null> {
-    const resUpdate = await SerialDeviceEntitie.updateMany(keys, model);
+    const resUpdate = await SerialDeviceEntitie.updateMany(keys, model, {runValidators: true});
     if(!resUpdate.matchedCount) return null;
     return await SerialDeviceEntitie.find({...keys, ...model});
   }
