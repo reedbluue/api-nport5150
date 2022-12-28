@@ -13,9 +13,11 @@ export abstract class SerialDeviceDao {
     return device;
   }
 
-  public static async update(keys: Object, model: Object): Promise<Array<SerialDeviceInterface> | null> {
+  public static async update(keys: any, model: any): Promise<Array<SerialDeviceInterface> | null> {
     const resUpdate = await SerialDeviceEntitie.updateMany(keys, model, {runValidators: true});
     if(!resUpdate.matchedCount) return null;
+    if(Object.keys(keys).includes('_id'))
+      return await SerialDeviceEntitie.find({_id: keys._id});
     return await SerialDeviceEntitie.find({...keys, ...model});
   }
 

@@ -1,8 +1,24 @@
 import { NextFunction, Request, Response } from "express";
 import { DeviceAssociationInterface } from "../models/modelsInterfaces/DeviceAssociationInterface.js";
 import { DeviceAssociationService } from '../models/modelsServices/DeviceAssociationService.js';
+import { WebSocketClientController } from "./WebSocketClientController.js";
+
+const associationsWSC = <Array<WebSocketClientController>>[];
 
 export abstract class DeviceAssociationController {
+
+  public static async checkAndUpdateAssociationsWSC() {
+    const deviceAssociations = await DeviceAssociationService.findAll();
+    if(!deviceAssociations) {
+      // for(const associationWSC of associationsWSC) {
+      //   associationWSC.
+      // }
+    }
+    // for(const deviceAssociation of deviceAssociations) {
+
+    // }
+  }
+
   public static async cadastrarDeviceAssociation(req: Request<DeviceAssociationInterface>, res: Response, next: NextFunction) {
     try {
       const deviceAssociation = await DeviceAssociationService.addNew(req.body);

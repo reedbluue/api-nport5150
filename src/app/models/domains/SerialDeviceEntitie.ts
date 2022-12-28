@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { ValidationHelper } from '../../helpers/validationHelper.js';
 import { SerialDeviceInterface } from '../modelsInterfaces/SerialDeviceInterface.js';
+import { AttributeSchema } from './AttributeEntitie.js';
 
 const SerialDeviceSchema = new mongoose.Schema<SerialDeviceInterface>({
   desc: {
@@ -22,8 +23,7 @@ const SerialDeviceSchema = new mongoose.Schema<SerialDeviceInterface>({
     }
   },
   attributes: {
-    type: [Object],
-    required: [true, 'O campo "attributes" não pode ser nulo!'],
+    type: [AttributeSchema],
     default: []
   },
 }, {timestamps: true, strict: true});
