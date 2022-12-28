@@ -12,9 +12,7 @@ export class WSService {
   }
 
   public start(): void {
-    try {
-      setTimeout(() => {
-      }, 1000);      
+    try {     
       this._clientNPort.connect({ host: this.host, port: this.port }, () => {
 
         console.log('TCP connection ON!');
@@ -22,9 +20,7 @@ export class WSService {
         this._clientNPort.on('end', () => {
           console.log('TCP connection OFF!');
         });
-
       });
-
     } catch (err) {
       console.log(err);
     } 

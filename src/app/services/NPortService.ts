@@ -1,4 +1,4 @@
-import { WSService } from "./WSService.js";
+import { WSService } from "./WebSocketClient.js";
 
 export class NportService {
   public _clientNPort: WSService;
