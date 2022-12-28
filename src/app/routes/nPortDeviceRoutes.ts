@@ -10,4 +10,4 @@ nPortDeviceRoutes.
   post('/nportdevice', NPortDeviceController.cadastrarNPortDevice).
   put('/nportdevice/id/:id', NPortDeviceController.atualizarNPortDevicePorId).
   put('/nportdevice/desc/:desc', NPortDeviceController.atualizarNPortDevicePorDesc).
-  delete('/nportdevice/:id', NPortDeviceController.deletarNPortDevicePorId);
+  delete('/nportdevice/id/:id', NPortDeviceController.deletarNPortDevicePorId);

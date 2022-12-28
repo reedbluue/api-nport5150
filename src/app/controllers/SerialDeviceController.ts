@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AttributeInterface } from "../models/modelsInterfaces/AttributeInterface.js";
 import { SerialDeviceInterface } from "../models/modelsInterfaces/SerialDeviceInterface.js";
 import { SerialDeviceService } from '../models/modelsServices/SerialDeviceService.js';
+import { AttributeDto } from "./dtos/AttributeDto.js";
 
 export abstract class SerialDeviceController {
   public static async cadastrarSerialDevice(req: Request, res: Response, next: NextFunction) {
@@ -117,9 +118,52 @@ export abstract class SerialDeviceController {
         return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
       const attributesDesc = serialDevice.attributes.map(attribute => attribute.desc);
       if(attributesDesc.includes(model.desc))
-        return res.status(400).json({message: "Já existe um atributo cadastrado com essa descrição para esse SerialDevice!"}); 
+        return res.status(409).json({message: "Já existe um atributo cadastrado com essa descrição para esse SerialDevice!"}); 
       const attributes = [...serialDevice.attributes, model];
       const serialDevices = await SerialDeviceService.updateById(<string>id, { attributes });
+      if(serialDevices)
+        return res.status(200).json(serialDevices);
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 
+    } catch (err){
+      return next(err);
+    }
+  }
+
+  public static async atualizarAtributo(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { serialDeviceId, desc } = req.params;
+      const serialDevice = await SerialDeviceService.findById(<string>serialDeviceId);
+      if(!serialDevice)
+        return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 
+      const model: AttributeInterface = req.body;
+      if(!Object.keys(model).length)
+        return res.status(400).json({message: "Os campos não podem ser nulos!"}); 
+      const attribute = serialDevice.attributes.map(attribute => new AttributeDto(attribute)).filter(attribute => attribute.desc == desc)[0];
+      if(!attribute)
+        return res.status(404).json({message: "Não existe um atributo cadastrado com essa descrição para esse SerialDevice!"}); 
+      const attributeRemoved = serialDevice.attributes.map(attribute => new AttributeDto(attribute)).filter(attribute => attribute.desc != desc);
+      const attributes = [...attributeRemoved, {...attribute, ...model}];
+      const serialDevices = await SerialDeviceService.updateById(<string>serialDeviceId, { attributes });
+      if(serialDevices)
+        return res.status(200).json(serialDevices);
+      return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 
+    } catch (err){
+      return next(err);
+    }
+  }
+
+  public static async deletarAtributo(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { serialDeviceId, desc } = req.params;
+      const serialDevice = await SerialDeviceService.findById(<string>serialDeviceId);
+      if(!serialDevice)
+        return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 
+      const attribute = serialDevice.attributes.map(attribute => new AttributeDto(attribute)).filter(attribute => attribute.desc == desc)[0];
+      if(!attribute)
+        return res.status(404).json({message: "Não existe um atributo cadastrado com essa descrição para esse SerialDevice!"}); 
+      const attributeRemoved = serialDevice.attributes.map(attribute => new AttributeDto(attribute)).filter(attribute => attribute.desc != desc);
+      const attributes = attributeRemoved;
+      const serialDevices = await SerialDeviceService.updateById(<string>serialDeviceId, { attributes });
       if(serialDevices)
         return res.status(200).json(serialDevices);
       return res.status(404).json({message: "Não existe um SerialDevice cadastrado com esse id, portanto, não foi possível atualizar!"}); 

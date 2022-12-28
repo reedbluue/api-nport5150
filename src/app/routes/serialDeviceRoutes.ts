@@ -11,5 +11,7 @@ serialDeviceRoutes.
   post('/serialdevice', SerialDeviceController.cadastrarSerialDevice).
   post('/serialdevice/id/:id/attribute', SerialDeviceController.adicionarAtributoPorSerialDeviceId).
   put('/serialdevice/id/:id', SerialDeviceController.atualizarSerialDevicePorId).
+  put('/serialdevice/id/:serialDeviceId/attribute/desc/:desc', SerialDeviceController.atualizarAtributo).
   put('/serialdevice/desc/:desc', SerialDeviceController.atualizarSerialDevicePorDesc).
-  delete('/serialdevice/:id', SerialDeviceController.deletarSerialDevicePorId);
+  delete('/serialdevice/id/:id', SerialDeviceController.deletarSerialDevicePorId).
+  delete('/serialdevice/id/:serialDeviceId/attribute/desc/:desc', SerialDeviceController.deletarAtributo);
