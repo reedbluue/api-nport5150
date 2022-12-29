@@ -5,7 +5,7 @@ import { SerialDeviceInterface } from "../models/modelsInterfaces/SerialDeviceIn
 import { DeviceAssociationService } from "../models/modelsServices/DeviceAssociationService.js";
 import { NPortDeviceService } from "../models/modelsServices/NPortDeviceService.js";
 
-const webSocketClientControllers = <Array<WebSocketClientController>>[];
+let webSocketClientControllers = <Array<WebSocketClientController>>[];
 
 export abstract class NPortWSCService {
   public static async initializeWSCC(): Promise<void> {
@@ -29,5 +29,13 @@ export abstract class NPortWSCService {
     for(const wsClient of webSocketClientControllers) {
       wsClient.start();
     }
+  }
+
+  public static async updateWSCC() {
+    for(const wSCC of webSocketClientControllers) {
+      wSCC.stop();
+    }
+    webSocketClientControllers = [];
+    await NPortWSCService.initializeWSCC();
   }
 }

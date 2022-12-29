@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ValidationHelper } from '../../helpers/validationHelper.js';
+import { ValidationHelper } from '../../helpers/ValidationHelper.js';
 import { DeviceAssociationInterface } from '../modelsInterfaces/DeviceAssociationInterface.js';
 
 const DeviceAssociationSchema = new mongoose.Schema<DeviceAssociationInterface>({

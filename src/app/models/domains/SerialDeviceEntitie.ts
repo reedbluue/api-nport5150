@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ValidationHelper } from '../../helpers/validationHelper.js';
+import { ValidationHelper } from '../../helpers/ValidationHelper.js';
 import { SerialDeviceInterface } from '../modelsInterfaces/SerialDeviceInterface.js';
 import { AttributeSchema } from './AttributeEntitie.js';
 

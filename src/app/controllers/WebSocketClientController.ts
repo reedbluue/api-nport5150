@@ -3,15 +3,15 @@ import Net from 'node:net';
 import { AttributeInterface } from '../models/modelsInterfaces/AttributeInterface.js';
 import { SerialDeviceInterface } from '../models/modelsInterfaces/SerialDeviceInterface.js';
 import { DeviceAssociationService } from '../models/modelsServices/DeviceAssociationService.js';
-import { WebSocketServer } from '../services/WebSocketServer.js';
+import { WebSocketServer } from '../app.js';
 
 export class WebSocketClientController {
   private _client: Net.Socket;
   private _attributes: Array<AttributeInterface>;
   private _updateInterval: NodeJS.Timer | null;
-  constructor(public host: string, public port: number, private _associationId: string | Schema.Types.ObjectId) {
+  constructor(public host: string, public port: number, private associationId: string | Schema.Types.ObjectId) {
     this._client = new Net.Socket({});
-    this._associationId = _associationId;
+    this.associationId = associationId;
     this._attributes = [];
     this._updateInterval = null;
   }
@@ -36,9 +36,10 @@ export class WebSocketClientController {
 
       this._client.on('error', err => {
         clearInterval(<NodeJS.Timer>this._updateInterval);
-        this._client.connect({ host: this.host, port: this.port });
-        if((<any>err).code && (<any>err).code == 'ETIMEDOUT')
+        if((<any>err).code && (<any>err).code == 'ETIMEDOUT') {
+          this._client.connect({ host: this.host, port: this.port });
           return console.log(`Timeout ao conectar em "${(<any>err).address}:${(<any>err).port}"!`);
+        }
         return console.log(err);
       });
     } catch (err) {
@@ -46,12 +47,19 @@ export class WebSocketClientController {
     }
   }
 
+  public stop() {
+    clearInterval(<NodeJS.Timer>this._updateInterval);
+    this._client.removeAllListeners();
+    this._client.on('error', () => { return; });
+    this._client.resetAndDestroy();
+  }
+
   private async _updateAttributes() {
-    const association = await DeviceAssociationService.findById(this._associationId);
+    const association = await DeviceAssociationService.findById(this.associationId);
     if(!association)
       return;
     this._attributes = (<SerialDeviceInterface>association.serialDevice).attributes;
-    this.offWSC();
+    this._offWSC();
     this._client.on('data', async data => {
       WebSocketServer.emit(`${(<SerialDeviceInterface>association.serialDevice).desc}>data`, data.toString());
     });
@@ -73,8 +81,8 @@ export class WebSocketClientController {
     }
   }
 
-  public offWSC () {
-    this._client.removeAllListeners();
+  private _offWSC () {
+    this._client.removeAllListeners('data');
   }
 
   private async _readData(rawData: Buffer, attribute: AttributeInterface) {

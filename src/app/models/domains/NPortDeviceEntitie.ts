@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ValidationHelper } from '../../helpers/validationHelper.js';
+import { ValidationHelper } from '../../helpers/ValidationHelper.js';
 import { NPortDeviceInterface } from '../modelsInterfaces/NPortDeviceInterface.js';
 
 const NPortDeviceSchema = new mongoose.Schema<NPortDeviceInterface>({

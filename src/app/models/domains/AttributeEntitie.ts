@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ValidationHelper } from "../../helpers/validationHelper.js";
+import { ValidationHelper } from "../../helpers/ValidationHelper.js";
 import { AttributeInterface } from "../modelsInterfaces/AttributeInterface.js";
 
 export const AttributeSchema = new mongoose.Schema<AttributeInterface>({
@@ -10,7 +10,6 @@ export const AttributeSchema = new mongoose.Schema<AttributeInterface>({
       validator: function(v: string) { return ValidationHelper.checkLength(v, 4, 20); },
       message: prop => `A descrição "${prop.value}" deve ter de 4 a 20 caractéres!`,
     },
-    unique: true,
     lowercase: true
   },
   regex: {
