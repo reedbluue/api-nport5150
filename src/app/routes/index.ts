@@ -1,7 +1,6 @@
 import { RequestError } from '../errors/requestErrors.js';
 import express from 'express';
 import type { Express, ErrorRequestHandler } from 'express';
-import nPortRoutes from './nPortRoutes.js';
 import cors from 'cors';
 import { serialDeviceRoutes } from './serialDeviceRoutes.js';
 import { nPortDeviceRoutes } from './nPortDeviceRoutes.js';
@@ -15,7 +14,6 @@ const routes = (app: Express) => {
   app.use(express.json());
   app.use(cors());
   app.use(
-    nPortRoutes,
     serialDeviceRoutes,
     nPortDeviceRoutes,
     deviceAssociationRoutes
